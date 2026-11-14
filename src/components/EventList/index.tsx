@@ -5,10 +5,14 @@ import { Fragment, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 import { VenueImage } from "@/components/VenueImage";
+import { truncate } from "@/components/utils/truncate";
 
 import { formatDateRange } from "../utils";
 import { toCountryCode } from "../utils/country";
 import { resolveEventHref } from "../utils/pageHref";
+
+/** Longer location names are cut to this many characters, then "...". */
+const LOCATION_MAX_CHARS = 20;
 
 export const EventsList = ({
   children,
@@ -68,6 +72,8 @@ export const ListEvent = ({
   isNext,
   isPast,
   showDefaultLocation,
+  id,
+  opacity,
   className,
 }: {
   event: Event;
@@ -84,6 +90,12 @@ export const ListEvent = ({
    * for events from a linked site, whose "default" venue isn't this one.
    */
   showDefaultLocation?: boolean;
+  id?: string;
+  /**
+   * The whole row's opacity, in place of isPast's 80%: lets a list fade its
+   * past events out the further back they are.
+   */
+  opacity?: number;
   className?: string;
 }) => {
   const locale = useLocale();
@@ -132,11 +144,18 @@ export const ListEvent = ({
     title,
     locationTitle ? (
       location?.mapLink ? (
-        <a href={location.mapLink} target="_blank" rel="noreferrer">
-          {locationTitle}
+        <a
+          href={location.mapLink}
+          target="_blank"
+          rel="noreferrer"
+          title={locationTitle}
+        >
+          {truncate(locationTitle, LOCATION_MAX_CHARS)}
         </a>
       ) : (
-        locationTitle
+        <span title={locationTitle}>
+          {truncate(locationTitle, LOCATION_MAX_CHARS)}
+        </span>
       )
     ) : null,
     location?.city,
@@ -151,6 +170,8 @@ export const ListEvent = ({
 
   return (
     <div
+      id={id}
+      style={opacity === undefined ? undefined : { opacity }}
       className={cn(
         "flex break-inside-avoid flex-col gap-8 pb-8 sm:gap-0",
         isPast && "opacity-80",
@@ -164,13 +185,15 @@ export const ListEvent = ({
           </EventLink>
         </div>
       ) : null}
-      {/* Date / Title / Location / City / Country, on one line that wraps.
+      {/* Date / Title / Location / City / Country, on one line that never
+          wraps: a long row runs past its column rather than breaking, except
+          a past one, which is cut off with an ellipsis at the column edge.
           Missing parts are left out along with their separator. Everything is
           secondary except the title, which sets its own primary colour; the
           next event is all highlight. */}
       <div
         className={cn(
-          "text-balance",
+          isPast ? "min-w-0 truncate" : "whitespace-nowrap",
           isNext ? "text-highlight" : "text-secondary",
         )}
       >

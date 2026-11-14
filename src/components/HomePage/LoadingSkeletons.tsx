@@ -1,86 +1,50 @@
-import { EventListSkeleton } from "@/components/Skeletons";
-import { ColumnLeft, ColumnRight, TwoColumnLayout } from "@/components/layout";
+import { cn } from "@/lib/utils";
+
+import {
+  ColumnLeft,
+  ColumnRight,
+  TwoColumnLayout,
+  headerRowLayout,
+} from "@/components/layout";
 import { Skeleton } from "@/components/ui/Input/Skeleton";
 
-export function FeaturedEventsSkeleton() {
-  return (
-    <div className="flex flex-col pb-16">
-      {/* Desktop layout */}
-      <TwoColumnLayout className="hidden">
-        <ColumnLeft>
-          <Skeleton className="aspect-square" />
-        </ColumnLeft>
-        <ColumnRight className="max-w-4xl gap-16">
-          <Skeleton className="w-48" />
-          <div className="flex flex-col gap-2">
-            <Skeleton className="h-6 w-3/4" />
-            <Skeleton className="h-5 w-1/2" />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Skeleton />
-            <Skeleton />
-            <Skeleton className="w-2/3" />
-          </div>
-        </ColumnRight>
-      </TwoColumnLayout>
+/**
+ * Row lengths, mostly near the full column: event rows run on one line to
+ * the column edge and beyond, so short bars would misrepresent them. Varied
+ * so the column reads as a list, not a block.
+ */
+const ROW_WIDTHS = [
+  "w-full",
+  "w-[83%]",
+  "w-[99%]",
+  "w-[89%]",
+  "w-full",
+  "w-[96%]",
+  "w-[97%]",
+  "w-[78%]",
+];
 
-      {/* Mobile layout */}
-      <div className="flex sm:hidden">
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col gap-1">
-            <Skeleton className="w-48" />
-            <Skeleton className="w-32" />
-          </div>
-          <Skeleton className="h-6 w-3/4" />
-          <Skeleton className="aspect-square" />
-          <div className="flex flex-col gap-2">
-            <Skeleton />
-            <Skeleton />
-            <Skeleton className="w-2/3" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const ROWS = 24;
 
+/**
+ * The home page while its events load: up in the header row like the other
+ * pages, a short bar in column 3 and the event rows in columns 4–6, each
+ * bar a full 20px line, 8px apart.
+ */
 export function EventsSkeleton() {
   return (
-    <TwoColumnLayout>
-      <ColumnLeft className="hidden text-sm text-secondary sm:flex">
-        <div className="flex flex-col gap-2">
-          <Skeleton />
-          <Skeleton />
-          <Skeleton className="w-3/4" />
-        </div>
+    <TwoColumnLayout className={headerRowLayout}>
+      <ColumnLeft className="hidden sm:flex">
+        <Skeleton className="h-5 w-3/4" />
       </ColumnLeft>
-      <ColumnRight>
-        {/* Past and upcoming events run together as one-line rows, 4px
-            apart (see EventsContent). */}
-        <EventListSkeleton rows={12} rowClassName="pb-1" />
+      <ColumnRight className="gap-2">
+        {Array.from({ length: ROWS }, (_, index) => (
+          <Skeleton
+            key={index}
+            className={cn("h-5", ROW_WIDTHS[index % ROW_WIDTHS.length])}
+          />
+        ))}
       </ColumnRight>
     </TwoColumnLayout>
-  );
-}
-
-export function ProductsSkeleton() {
-  return (
-    <section className="py-20">
-      <div className="pb-8">
-        <Skeleton className="w-16" />
-      </div>
-
-      <div className="grid grid-cols-2 gap-8 pb-20 sm:max-w-full sm:grid-cols-4 xl:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="flex flex-col gap-3">
-            <Skeleton className="aspect-square" />
-            <div className="flex flex-col gap-1">
-              <Skeleton className="h-3 w-1/2" />
-              <Skeleton className="w-3/4" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
   );
 }
