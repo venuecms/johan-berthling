@@ -43,13 +43,15 @@ export const Page = ({
   const { content } = getLocalizedContent(page?.localizedContent, locale);
 
   return (
-    <TwoColumnLayout>
+    // Pulled up into the header row on desktop, so the title and first line of
+    // the body sit level with the logo and nav. 3rem is the header's height:
+    // 4px top padding + one 20px line + 24px bottom padding.
+    <TwoColumnLayout className="lg:-mt-12 lg:pt-1">
       <ColumnLeft>
         <div className="flex flex-col gap-12">
           <div>
             <div>{content.title}</div>
           </div>
-          <VenueImage image={page.image} />
           <PageTree pages={pages} />
         </div>
       </ColumnLeft>
@@ -61,6 +63,7 @@ export const Page = ({
           contentStyles={contentComponents}
           searchParams={searchParams}
         />
+        <VenueImage image={page.image} />
         <TwoSubColumnLayout>
           {artists.map(({ profile }) => (
             <ProfileCompact key={profile.slug} profile={profile} />

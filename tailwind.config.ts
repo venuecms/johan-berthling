@@ -20,7 +20,7 @@ export default {
         background: "hsla(var(--background))",
         card: "var(--card)",
         black: "hsla(var(--black))",
-        highlight: "hsla(var(highlight))",
+        highlight: "hsla(var(--highlight))",
         primary: "hsla(var(--primary))",
         secondary: "hsla(var(--secondary))",
         muted: "hsla(var(--muted))",
@@ -34,8 +34,8 @@ export default {
         "panel-background-2": "hsla(var(--panel-background-2))",
       },
       fontSize: {
-        sm: ["1rem", "1.5rem"],
-        md: ["1rem", "1.5rem"],
+        sm: ["1rem", "1.25rem"],
+        md: ["1rem", "1.25rem"],
         xl: ["2rem", "2.5rem"],
       },
       fontWeight: {

@@ -8,6 +8,9 @@ html {
   --secondary: 120, 4%, 56%, 1;
   --muted: 120, 4%, 33%, 0.8;
 
+  /* Active nav item. #F14810 */
+  --highlight: 15, 89%, 50%, 1;
+
   /* Card surface: the active theme's background, slightly darkened.
      Resolves lazily, so per-theme --background overrides flow through. */
   --card: color-mix(in srgb, hsla(var(--background)), black 8%);
