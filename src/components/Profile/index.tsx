@@ -8,7 +8,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Suspense } from "react";
 
 import { contentComponents } from "@/components/ListingBlock";
-import { VenueImage } from "@/components/VenueImage";
+import { VenueImage, contentImageHandlers } from "@/components/VenueImage";
 
 import { ColumnLeft, ColumnRight, TwoColumnLayout } from "../layout";
 import { ErrorBoundary } from "../utils/ErrorBoundary";
@@ -47,6 +47,7 @@ export const Profile = ({
 
       <ColumnRight className="max-w-5xl">
         <VenueContent
+          components={contentImageHandlers}
           className="flex flex-col gap-6"
           content={content}
           contentStyles={contentComponents}

@@ -9,7 +9,7 @@ import { useLocale } from "next-intl";
 import { PageWithParent } from "@/lib/utils/tree";
 
 import { contentComponents, pageBodyStyles } from "@/components/ListingBlock";
-import { VenueImage } from "@/components/VenueImage";
+import { VenueImage, contentImageHandlers } from "@/components/VenueImage";
 
 import { PageTree } from "../PageTree";
 import { ProfileCompact } from "../ProfileCompact";
@@ -58,6 +58,7 @@ export const Page = ({
 
       <ColumnRight>
         <VenueContent
+          components={contentImageHandlers}
           className={pageBodyStyles}
           content={content}
           contentStyles={contentComponents}

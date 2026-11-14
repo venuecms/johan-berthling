@@ -11,6 +11,7 @@ import { SearchProvider } from "@/components/Search/provider";
 import { SearchResultsLayout } from "@/components/SearchResults";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ThemedBody } from "@/components/ThemedBody";
+import { RoughLineFilter } from "@/components/VenueImage";
 import { setupSSR } from "@/components/utils";
 
 import "../../globals.css";
@@ -61,6 +62,7 @@ const RootLayout = ({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body className="font-base m-auto bg-background px-6 font-regular leading-5 text-primary antialiased sm:max-w-[96rem] sm:px-2">
+        <RoughLineFilter />
         <Suspense fallback={<Loading />}>
           <LayoutContent params={params}>{children}</LayoutContent>
         </Suspense>

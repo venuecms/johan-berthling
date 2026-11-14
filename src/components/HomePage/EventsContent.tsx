@@ -13,6 +13,7 @@ import { Link } from "@/lib/i18n";
 import { EventsList, ListEvent } from "@/components/EventList";
 import { contentComponents } from "@/components/ListingBlock";
 import { TranslatedText } from "@/components/TranslatedText";
+import { contentImageHandlers } from "@/components/VenueImage";
 import { ColumnLeft, ColumnRight, TwoColumnLayout } from "@/components/layout";
 
 export async function EventsContent({
@@ -52,6 +53,7 @@ export async function EventsContent({
       <ColumnLeft className="hidden text-sm text-secondary sm:flex">
         {siteContent ? (
           <VenueContent
+            components={contentImageHandlers}
             className="flex flex-col gap-6"
             content={siteContent}
             contentStyles={contentComponents}
@@ -88,6 +90,7 @@ export async function EventsContent({
         {siteContent ? (
           <div className="flex sm:hidden">
             <VenueContent
+              components={contentImageHandlers}
               className="flex flex-col gap-6"
               content={siteContent}
               contentStyles={contentComponents}

@@ -9,6 +9,8 @@ import { getPages } from "@venuecms/sdk-next";
 import { getLocale } from "next-intl/server";
 import { ReactNode } from "react";
 
+import { contentImageHandlers } from "@/components/VenueImage";
+
 import { resolvePageHref } from "../utils/pageHref";
 // The site description is a short blurb, so it takes prose styling only — no
 // listing blocks to resolve here.
@@ -62,6 +64,7 @@ export const Nav = async ({ logo, site }: { logo: ReactNode; site: Site }) => {
         footer={
           site.description ? (
             <VenueContent
+              components={contentImageHandlers}
               content={{ content: site.description } as LocalizedContent}
               contentStyles={renderedStyles}
             />

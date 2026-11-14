@@ -1,6 +1,7 @@
 import type { LocalizedContent, SearchParams } from "@venuecms/sdk-next";
 import { VenueContent } from "@venuecms/sdk-next";
 
+import { contentImageHandlers } from "@/components/VenueImage";
 import { ColumnLeft, ColumnRight, TwoColumnLayout } from "@/components/layout";
 
 import { contentComponents, pageBodyStyles } from "../ListingBlock";
@@ -44,6 +45,7 @@ export const PageListing = ({
 
   const body = (
     <VenueContent
+      components={contentImageHandlers}
       className={pageBodyStyles}
       content={content}
       contentStyles={contentComponents}
