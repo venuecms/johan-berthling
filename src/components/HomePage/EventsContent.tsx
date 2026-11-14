@@ -1,6 +1,8 @@
 import {
+  type Event,
   LocalizedContent,
   type SearchParams,
+  type Site,
   VenueContent,
   getLocalizedContent,
 } from "@venuecms/sdk-next";
@@ -9,12 +11,26 @@ import { ArrowRight } from "lucide-react";
 import { connection } from "next/server";
 
 import { Link } from "@/lib/i18n";
+import { getLinkedEvents, parseLinkedSiteKeys } from "@/lib/utils/linkedEvents";
 
 import { EventsList, ListEvent, findNextEventId } from "@/components/EventList";
 import { contentComponents } from "@/components/ListingBlock";
 import { TranslatedText } from "@/components/TranslatedText";
 import { contentImageHandlers } from "@/components/VenueImage";
 import { ColumnLeft, ColumnRight, TwoColumnLayout } from "@/components/layout";
+
+type SiteEvent = { event: Event; site: Site };
+
+/** Unique across sites: event ids are only unique within one. */
+const keyOf = ({ event, site }: SiteEvent) => `${site.id}:${event.id}`;
+
+/** Oldest first; undated events last. */
+const byStart = (items: Array<SiteEvent>) =>
+  items.sort(
+    (a, b) =>
+      (a.event.startDate ? Date.parse(a.event.startDate) : Infinity) -
+      (b.event.startDate ? Date.parse(b.event.startDate) : Infinity),
+  );
 
 const UPCOMING_LIMIT = 6;
 const PAST_LIMIT = 12;
@@ -55,18 +71,38 @@ export async function EventsContent({
     return null;
   }
 
-  const upcoming = events?.records ?? [];
-  // One continuous list in date order: the most recent past events, fetched
-  // newest first and flipped, leading into the upcoming ones. An event that
-  // has started but not ended can come back in both queries; it's kept once,
-  // with the upcoming events.
-  const upcomingIds = new Set(upcoming.map(({ id }) => id));
-  const past = (pastEvents?.records ?? [])
-    .filter(({ id }) => !upcomingIds.has(id))
-    .reverse();
+  // Events from other Venue sites named in the template config, fetched with
+  // the same filters as this site's own (see linkedEvents).
+  const linkedSiteKeys = parseLinkedSiteKeys(
+    site.settings?.publicSite?.template?.config?.linkedSiteKeys,
+  );
+  const [linkedUpcoming, linkedPast] = await Promise.all([
+    getLinkedEvents(linkedSiteKeys, { limit: UPCOMING_LIMIT, upcoming: true }),
+    getLinkedEvents(linkedSiteKeys, {
+      limit: PAST_LIMIT,
+      lt: now.getTime(),
+      dir: "desc",
+    }),
+  ]);
+
+  const own = (records: ReadonlyArray<Event> = []) =>
+    records.map((event) => ({ event, site }));
+
+  // One continuous list in date order: the most recent past events leading
+  // into the upcoming ones, this site's and the linked sites' merged, each
+  // side then cut back to its limit. An event that has started but not ended
+  // can come back in both queries; it's kept once, with the upcoming events.
+  const upcoming = byStart([...own(events?.records), ...linkedUpcoming]).slice(
+    0,
+    UPCOMING_LIMIT,
+  );
+  const upcomingKeys = new Set(upcoming.map(keyOf));
+  const past = byStart([...own(pastEvents?.records), ...linkedPast])
+    .filter((item) => !upcomingKeys.has(keyOf(item)))
+    .slice(-PAST_LIMIT);
   const allEvents = [...past, ...upcoming];
-  const pastIds = new Set(past.map(({ id }) => id));
-  const nextEventId = findNextEventId(allEvents);
+  const pastKeys = new Set(past.map(keyOf));
+  const nextEventId = findNextEventId(allEvents.map(({ event }) => event));
 
   const webSiteSettings = site.webSites ? site.webSites[0] : undefined;
   const { content: siteContent } = webSiteSettings?.localizedContent?.length
@@ -90,19 +126,23 @@ export async function EventsContent({
         {allEvents.length ? (
           <section className="flex flex-col gap-3">
             <EventsList>
-              {allEvents.map((event) => (
-                // pb-1: a 4px gap between events.
+              {allEvents.map((item) => (
+                // pb-1: a 4px gap between events. Each event is dated in its
+                // own site's time zone.
                 <ListEvent
-                  isNext={event.id === nextEventId}
-                  isPast={pastIds.has(event.id)}
-                  key={event.id}
-                  event={event}
-                  site={site}
+                  isNext={item.event.id === nextEventId}
+                  isPast={pastKeys.has(keyOf(item))}
+                  key={keyOf(item)}
+                  event={item.event}
+                  site={item.site}
+                  showDefaultLocation={item.site.id !== site.id}
                   className="pb-1"
                 />
               ))}
             </EventsList>
-            {upcoming.length >= UPCOMING_LIMIT ? (
+            {/* /events lists this site's own events only, so this goes by
+                those alone. */}
+            {(events?.records.length ?? 0) >= UPCOMING_LIMIT ? (
               <div className="w-full grid-cols-1 gap-0 sm:grid">
                 <span></span>
                 <Link

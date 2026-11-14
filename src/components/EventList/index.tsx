@@ -2,7 +2,6 @@ import { type Event, type Site, getLocalizedContent } from "@venuecms/sdk-next";
 import { useLocale, useTranslations } from "next-intl";
 import { Fragment, ReactNode } from "react";
 
-import { Link } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import { VenueImage } from "@/components/VenueImage";
@@ -68,6 +67,7 @@ export const ListEvent = ({
   dateTemplate,
   isNext,
   isPast,
+  showDefaultLocation,
   className,
 }: {
   event: Event;
@@ -79,6 +79,11 @@ export const ListEvent = ({
   isNext?: boolean;
   /** Recedes: secondary title and the whole row at 80% opacity. */
   isPast?: boolean;
+  /**
+   * Name the venue even when it's the event's site's default location: true
+   * for events from a linked site, whose "default" venue isn't this one.
+   */
+  showDefaultLocation?: boolean;
   className?: string;
 }) => {
   const locale = useLocale();
@@ -86,19 +91,21 @@ export const ListEvent = ({
   const { artists } = event;
   const { content } = getLocalizedContent(event.localizedContent, locale);
   const isCancelled = event.publishState === "CANCELLED";
-  // Ticket link, else the venue's website, else the event page.
-  const link = resolveEventHref(event);
+  // Ticket link, else the venue's website, else no link.
+  const href = resolveEventHref(event);
 
   // The venue's own location is implied, so only other venues are named.
   const location =
-    event.location && !event.location.isDefault ? event.location : undefined;
+    event.location && (showDefaultLocation || !event.location.isDefault)
+      ? event.location
+      : undefined;
   const locationTitle = location
     ? getLocalizedContent(location.localizedContent, locale).content.title
     : undefined;
 
   const title = (
     <EventLink
-      {...link}
+      href={href}
       className={cn(
         isNext ? "text-highlight" : isPast ? "text-secondary" : "text-primary",
         "hover:brightness-150",
@@ -111,7 +118,7 @@ export const ListEvent = ({
 
   const segments: Array<ReactNode> = [
     event.startDate ? (
-      <EventLink {...link}>
+      <EventLink href={href}>
         {formatDateRange({
           start: event.startDate,
           end: event.endDate,
@@ -152,7 +159,7 @@ export const ListEvent = ({
     >
       {withImage ? (
         <div className={cn("w-full pb-3 sm:w-80 sm:max-w-full")}>
-          <EventLink {...link}>
+          <EventLink href={href}>
             <VenueImage image={displayImage} aspect="video" />
           </EventLink>
         </div>
@@ -190,24 +197,23 @@ export const ListEvent = ({
   );
 };
 
-/** An internal link for the event page; a new-tab anchor for anywhere else. */
+/**
+ * The event's ticket or venue link, in a new tab; or, when it has neither,
+ * the same content unlinked.
+ */
 const EventLink = ({
   href,
-  external,
   className,
   children,
 }: {
-  href: string;
-  external: boolean;
+  href: string | undefined;
   className?: string;
   children: ReactNode;
 }) =>
-  external ? (
+  href ? (
     <a href={href} target="_blank" rel="noreferrer" className={className}>
       {children}
     </a>
   ) : (
-    <Link href={href} className={className}>
-      {children}
-    </Link>
+    <span className={className}>{children}</span>
   );
