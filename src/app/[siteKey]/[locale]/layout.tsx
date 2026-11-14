@@ -10,12 +10,25 @@ import { NavigationProgress } from "@/components/NavigationProgress";
 import { SearchProvider } from "@/components/Search/provider";
 import { SearchResultsLayout } from "@/components/SearchResults";
 import { SiteHeader } from "@/components/SiteHeader";
+import { HeaderSpacer } from "@/components/SiteHeader/HeaderSpacer";
 import { ThemedBody } from "@/components/ThemedBody";
 import { RoughLineFilter } from "@/components/VenueImage";
 import { setupSSR } from "@/components/utils";
 
 import "../../globals.css";
 import Loading from "./loading";
+
+/**
+ * Shown on a first load while the site, and with it the themed body and
+ * header, is still loading: the page skeleton, held down by the header's
+ * height so it sits where the loaded content will.
+ */
+const ShellLoading = () => (
+  <>
+    <HeaderSpacer />
+    <Loading />
+  </>
+);
 
 const LayoutContent = async ({
   children,
@@ -36,7 +49,7 @@ const LayoutContent = async ({
             <Suspense fallback={null}>
               <NavigationProgress />
             </Suspense>
-            <Suspense fallback={<Loading />}>
+            <Suspense fallback={<ShellLoading />}>
               <ThemedBody>
                 <SiteHeader />
                 <SearchResultsLayout>{children}</SearchResultsLayout>
@@ -65,7 +78,7 @@ const RootLayout = ({
       <body className="font-base m-auto bg-background px-6 font-regular leading-5 text-primary antialiased sm:max-w-[96rem] sm:px-2">
         <RoughLineFilter />
 
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<ShellLoading />}>
           <LayoutContent params={params}>{children}</LayoutContent>
         </Suspense>
       </body>

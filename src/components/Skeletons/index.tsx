@@ -95,3 +95,18 @@ export const PageSkeleton = () => (
     </ColumnRight>
   </TwoColumnLayout>
 );
+
+/**
+ * /archive: the title on the header row in column 3, then compact one-line
+ * event rows, 4px apart, in columns 4–6.
+ */
+export const ArchiveSkeleton = () => (
+  <TwoColumnLayout className={headerRowLayout}>
+    <ColumnLeft>
+      <Skeleton className="my-1 h-3 w-24" />
+    </ColumnLeft>
+    <ColumnRight>
+      <EventListSkeleton rows={20} rowClassName="pb-1" />
+    </ColumnRight>
+  </TwoColumnLayout>
+);

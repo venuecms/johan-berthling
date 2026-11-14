@@ -7,13 +7,13 @@ import {
   getLocalizedContent,
 } from "@venuecms/sdk-next";
 import { getEvents, getSite } from "@venuecms/sdk-next";
-import { ArrowRight } from "lucide-react";
 import { connection } from "next/server";
 
 import { Link } from "@/lib/i18n";
 import { getLinkedEvents, parseLinkedSiteKeys } from "@/lib/utils/linkedEvents";
 
 import { EventsList, ListEvent, findNextEventId } from "@/components/EventList";
+import { ScrollToEvent } from "@/components/HomePage/ScrollToEvent";
 import { contentComponents } from "@/components/ListingBlock";
 import { TranslatedText } from "@/components/TranslatedText";
 import { contentImageHandlers } from "@/components/VenueImage";
@@ -32,8 +32,26 @@ const byStart = (items: Array<SiteEvent>) =>
       (b.event.startDate ? Date.parse(b.event.startDate) : Infinity),
   );
 
-const UPCOMING_LIMIT = 6;
+/**
+ * Every upcoming event is shown. The API still needs a limit: without one it
+ * sends back 20. This is a ceiling no site's upcoming events will reach.
+ */
+const UPCOMING_LIMIT = 1000;
 const PAST_LIMIT = 12;
+
+/**
+ * On desktop the page starts scrolled so this many past events show from the
+ * nav down; the rest are above, a scroll up away (ScrollToEvent).
+ */
+const PAST_IN_VIEW = 5;
+const SCROLL_TARGET_ID = "home-scroll-target";
+
+/**
+ * Past events fade out the further back they are: the most recent at 60%,
+ * each one before it 8% fainter, down to 20%.
+ */
+const pastOpacity = (stepsBack: number) =>
+  Math.max(0.2, 0.6 - stepsBack * 0.08);
 
 export async function EventsContent({
   locale,
@@ -89,19 +107,21 @@ export async function EventsContent({
     records.map((event) => ({ event, site }));
 
   // One continuous list in date order: the most recent past events leading
-  // into the upcoming ones, this site's and the linked sites' merged, each
-  // side then cut back to its limit. An event that has started but not ended
-  // can come back in both queries; it's kept once, with the upcoming events.
-  const upcoming = byStart([...own(events?.records), ...linkedUpcoming]).slice(
-    0,
-    UPCOMING_LIMIT,
-  );
+  // into all the upcoming ones, this site's and the linked sites' merged, and
+  // the past side then cut back to its limit. An event that has started but
+  // not ended can come back in both queries; it's kept once, with the upcoming
+  // events.
+  const upcoming = byStart([...own(events?.records), ...linkedUpcoming]);
   const upcomingKeys = new Set(upcoming.map(keyOf));
   const past = byStart([...own(pastEvents?.records), ...linkedPast])
     .filter((item) => !upcomingKeys.has(keyOf(item)))
     .slice(-PAST_LIMIT);
   const allEvents = [...past, ...upcoming];
   const pastKeys = new Set(past.map(keyOf));
+  // The 5th-from-last past event: none when there are 5 or fewer, as nothing
+  // would sit above it to scroll past.
+  const scrollTarget =
+    past.length > PAST_IN_VIEW ? past[past.length - PAST_IN_VIEW] : undefined;
   const nextEventId = findNextEventId(allEvents.map(({ event }) => event));
 
   const webSiteSettings = site.webSites ? site.webSites[0] : undefined;
@@ -124,38 +144,52 @@ export async function EventsContent({
       </ColumnLeft>
       <ColumnRight>
         {allEvents.length ? (
-          <section className="flex flex-col gap-3">
+          // lg:-mt-24: up out of the layout's 96px top padding, so scrolled
+          // to the top the "see all past events" link sits 48px below the
+          // top of the page (under the 3rem header), the same gap-12 that
+          // separates it from the list.
+          <section className="flex flex-col gap-12 lg:-mt-24">
+            {/* Ahead of the past events: the whole archive, which lists the
+                linked sites' past events too. */}
+            {past.length ? (
+              <div className="text-sm text-secondary">
+                <span aria-hidden className="opacity-30">
+                  /
+                </span>{" "}
+                <Link
+                  href="/archive"
+                  className="text-secondary hover:text-primary"
+                >
+                  <TranslatedText
+                    namespace="events"
+                    text="see_all_past_events"
+                  />
+                </Link>
+              </div>
+            ) : null}
             <EventsList>
-              {allEvents.map((item) => (
+              {allEvents.map((item, index) => (
                 // pb-1: a 4px gap between events. Each event is dated in its
                 // own site's time zone.
                 <ListEvent
                   isNext={item.event.id === nextEventId}
                   isPast={pastKeys.has(keyOf(item))}
+                  opacity={
+                    pastKeys.has(keyOf(item))
+                      ? pastOpacity(past.length - 1 - index)
+                      : undefined
+                  }
                   key={keyOf(item)}
                   event={item.event}
                   site={item.site}
                   showDefaultLocation={item.site.id !== site.id}
+                  id={item === scrollTarget ? SCROLL_TARGET_ID : undefined}
                   className="pb-1"
                 />
               ))}
             </EventsList>
-            {/* /events lists this site's own events only, so this goes by
-                those alone. */}
-            {(events?.records.length ?? 0) >= UPCOMING_LIMIT ? (
-              <div className="w-full grid-cols-1 gap-0 sm:grid">
-                <span></span>
-                <Link
-                  className="flex w-full items-center gap-2 hover:brightness-125 sm:relative sm:flex-row"
-                  href="/events"
-                >
-                  <ArrowRight className="h-4" />{" "}
-                  <TranslatedText
-                    namespace="events"
-                    text="see_all_upcoming_events"
-                  />
-                </Link>
-              </div>
+            {scrollTarget ? (
+              <ScrollToEvent targetId={SCROLL_TARGET_ID} />
             ) : null}
           </section>
         ) : null}
