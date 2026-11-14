@@ -1,4 +1,4 @@
-import { EventsList } from "@/components/EventList";
+import { EventListSkeleton } from "@/components/Skeletons";
 import { ColumnLeft, ColumnRight, TwoColumnLayout } from "@/components/layout";
 import { Skeleton } from "@/components/ui/Input/Skeleton";
 
@@ -55,17 +55,9 @@ export function EventsSkeleton() {
         </div>
       </ColumnLeft>
       <ColumnRight>
-        <EventsList>
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="flex flex-col gap-8 pb-8 sm:gap-0">
-              <div className="flex flex-col gap-1">
-                <Skeleton className="w-32" />
-                <Skeleton className="w-48" />
-                <Skeleton className="w-24" />
-              </div>
-            </div>
-          ))}
-        </EventsList>
+        {/* Past and upcoming events run together as one-line rows, 4px
+            apart (see EventsContent). */}
+        <EventListSkeleton rows={12} rowClassName="pb-1" />
       </ColumnRight>
     </TwoColumnLayout>
   );

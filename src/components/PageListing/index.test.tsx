@@ -90,15 +90,9 @@ describe("PageListing", () => {
     },
   );
 
-  // The shop sits in a section of its own; the other two head a two-column
-  // layout with the page's title, the way /artists and /events do.
-  it("frames the products listing the way /shop frames its own", async () => {
-    const html = await renderListing({ layout: "products", content: body });
-
-    expect(html).toContain('<section class="py-20">');
-  });
-
-  it.each(["events", "profiles"] as const)(
+  // Every listing type heads its records with the page's title, up in the
+  // header row the way content pages are.
+  it.each(["events", "profiles", "products"] as const)(
     "heads the %s listing with the page's title",
     async (layout) => {
       const html = await renderListing({
@@ -111,16 +105,6 @@ describe("PageListing", () => {
       expect(html).not.toContain("<section");
     },
   );
-
-  it("leaves the products listing unheaded, as /shop is", async () => {
-    const html = await renderListing({
-      layout: "products",
-      title: "Dispatches",
-      content: body,
-    });
-
-    expect(html).not.toContain("Dispatches");
-  });
 
   it("styles the body the way every page body is styled", async () => {
     const html = await renderListing({ layout: "events", content: body });

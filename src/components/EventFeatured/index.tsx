@@ -9,7 +9,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-import { VenueImage } from "@/components/VenueImage";
+import { VenueImage, contentImageHandlers } from "@/components/VenueImage";
 
 import { LocationLink } from "../LocationLink";
 import { TicketList } from "../TicketList";
@@ -76,6 +76,7 @@ export const EventFeatured = ({
               ProfileCompact renders a bio the same way, for the same reason.
             */}
             <VenueContent
+              components={contentImageHandlers}
               className="flex max-w-xl flex-col gap-6"
               content={content}
               contentStyles={renderedStyles}
@@ -107,7 +108,11 @@ export const EventFeatured = ({
           <div className="text-xl">
             <Link href={`/events/${event.slug}`}>
               {/* Inside a Link, as above. */}
-              <VenueContent content={content} contentStyles={renderedStyles} />
+              <VenueContent
+                components={contentImageHandlers}
+                content={content}
+                contentStyles={renderedStyles}
+              />
             </Link>
           </div>
         </div>

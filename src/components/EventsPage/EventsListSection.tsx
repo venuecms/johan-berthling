@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { EventsList } from "@/components/EventList";
+import { EventListSkeleton } from "@/components/Skeletons";
 import { ColumnLeft, ColumnRight, TwoColumnLayout } from "@/components/layout";
 import { Skeleton } from "@/components/ui/Input/Skeleton";
 import { ErrorBoundary } from "@/components/utils/ErrorBoundary";
@@ -20,7 +20,7 @@ function EventsListError() {
   );
 }
 
-function EventsListSkeleton() {
+export function EventsListSkeleton() {
   return (
     <TwoColumnLayout>
       <ColumnLeft className="text-sm text-secondary">
@@ -29,18 +29,7 @@ function EventsListSkeleton() {
         </div>
       </ColumnLeft>
       <ColumnRight>
-        <EventsList className="gap-y-12">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="flex flex-col gap-3 pb-8">
-              <Skeleton className="aspect-video w-full sm:w-80" />
-              <div className="flex flex-col gap-1">
-                <Skeleton className="w-32" />
-                <Skeleton className="w-48" />
-                <Skeleton className="w-24" />
-              </div>
-            </div>
-          ))}
-        </EventsList>
+        <EventListSkeleton rows={6} withImage className="gap-y-12" />
       </ColumnRight>
     </TwoColumnLayout>
   );

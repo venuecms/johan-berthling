@@ -9,12 +9,13 @@ import { getPages } from "@venuecms/sdk-next";
 import { getLocale } from "next-intl/server";
 import { ReactNode } from "react";
 
-import { Link } from "@/lib/i18n";
+import { contentImageHandlers } from "@/components/VenueImage";
 
 import { resolvePageHref } from "../utils/pageHref";
 // The site description is a short blurb, so it takes prose styling only — no
 // listing blocks to resolve here.
 import { renderedStyles } from "../utils/styles";
+import { NavItem } from "./NavItem";
 import { NavMenuDesktop } from "./NavMenuDesktop";
 import { NavMenuMobile } from "./NavMenuMobile";
 
@@ -47,11 +48,9 @@ export const Nav = async ({ logo, site }: { logo: ReactNode; site: Site }) => {
         const { href, target } = resolvePageHref(page);
 
         return (
-          <li key={page.slug}>
-            <Link href={href} target={target}>
-              {content.title}
-            </Link>
-          </li>
+          <NavItem key={page.slug} href={href} target={target}>
+            {content.title}
+          </NavItem>
         );
       })
     : null;
@@ -65,6 +64,7 @@ export const Nav = async ({ logo, site }: { logo: ReactNode; site: Site }) => {
         footer={
           site.description ? (
             <VenueContent
+              components={contentImageHandlers}
               content={{ content: site.description } as LocalizedContent}
               contentStyles={renderedStyles}
             />

@@ -5,7 +5,7 @@ import { getEvents, getPage, getSite } from "@venuecms/sdk-next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 
-import { EventsList, ListEvent } from "@/components/EventList";
+import { EventsList, ListEvent, findNextEventId } from "@/components/EventList";
 import { Pagination } from "@/components/Pagination";
 import { ColumnLeft, ColumnRight, TwoColumnLayout } from "@/components/layout";
 import { setupSSR } from "@/components/utils";
@@ -67,13 +67,13 @@ const ArchivePage = async ({
       <ColumnRight>
         {events?.records.length ? (
           <EventsList>
-            {events.records.map((event) => (
+            {events.records.map((event, _, list) => (
               <ListEvent
+                isNext={event.id === findNextEventId(list)}
                 key={event.id}
                 event={event}
                 site={site}
                 withTime={false}
-                dateTemplate={"d MMMM yyyy"}
               />
             ))}
           </EventsList>

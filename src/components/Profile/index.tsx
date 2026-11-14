@@ -7,10 +7,16 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { Suspense } from "react";
 
-import { contentComponents } from "@/components/ListingBlock";
-import { VenueImage } from "@/components/VenueImage";
+import { contentComponents, pageBodyStyles } from "@/components/ListingBlock";
+import { VenueImage, contentImageHandlers } from "@/components/VenueImage";
 
-import { ColumnLeft, ColumnRight, TwoColumnLayout } from "../layout";
+import {
+  ColumnLeft,
+  ColumnRight,
+  StickyTitle,
+  TwoColumnLayout,
+  headerRowLayout,
+} from "../layout";
 import { ErrorBoundary } from "../utils/ErrorBoundary";
 import { ProfileEventList, ProfileEventListSkeleton } from "./ProfileEventList";
 
@@ -35,19 +41,18 @@ export const Profile = ({
   const { content } = getLocalizedContent(profile?.localizedContent, locale);
 
   return (
-    <TwoColumnLayout>
+    // Same layout as a page: title sticky on the left in the header row,
+    // content on the right. Unlike a page, the image goes below the upcoming
+    // events rather than straight after the content.
+    <TwoColumnLayout className={headerRowLayout}>
       <ColumnLeft>
-        <div className="flex flex-col gap-12">
-          <div>
-            <div>{content.title}</div>
-          </div>
-          <VenueImage image={profile.image} />
-        </div>
+        <StickyTitle>{content.title}</StickyTitle>
       </ColumnLeft>
 
-      <ColumnRight className="max-w-5xl">
+      <ColumnRight>
         <VenueContent
-          className="flex flex-col gap-6"
+          components={contentImageHandlers}
+          className={pageBodyStyles}
           content={content}
           contentStyles={contentComponents}
           searchParams={searchParams}
@@ -61,10 +66,12 @@ export const Profile = ({
             />
           </Suspense>
         </ErrorBoundary>
+        <VenueImage image={profile.image} />
         <ErrorBoundary fallback={null}>
           <Suspense fallback={null}>
             <ProfileEventList
               header={t("past_events")}
+              id="past-events"
               slug={profile.slug}
               filter={{ lt: Date.now(), dir: "desc" }}
             />
