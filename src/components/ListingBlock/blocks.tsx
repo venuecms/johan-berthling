@@ -29,7 +29,7 @@ import type { ListingProps } from "@venuecms/sdk-next";
 import { useTranslations } from "next-intl";
 
 import { EventsList, ListEvent, findNextEventId } from "@/components/EventList";
-import { ListProduct, ProductCover } from "@/components/ListProduct";
+import { ListProduct, ProductCoversGrid } from "@/components/ListProduct";
 import { ListPage, PagesList } from "@/components/PageList";
 import { ProfileCompact } from "@/components/ProfileCompact";
 import { ProfileSection } from "@/components/ProfileSection";
@@ -245,11 +245,7 @@ export const ProductCoversListingBlock = ({
       records={records}
       label={t("products")}
     >
-      <div className="grid grid-cols-2 gap-2 lg:grid-cols-5">
-        {records.map((product) => (
-          <ProductCover key={product.slug} product={product} />
-        ))}
-      </div>
+      <ProductCoversGrid products={records} />
     </PaginatedListing>
   );
 };

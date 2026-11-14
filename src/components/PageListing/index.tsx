@@ -1,5 +1,6 @@
 import type { LocalizedContent, SearchParams } from "@venuecms/sdk-next";
 import { VenueContent } from "@venuecms/sdk-next";
+import { Suspense } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,7 @@ import {
   headerRowLayout,
 } from "@/components/layout";
 
+import { ProductCoversSkeleton } from "../ListProduct";
 import {
   contentComponents,
   pageBodyStyles,
@@ -20,7 +22,12 @@ import {
 } from "../ListingBlock";
 import { NewsView } from "../News";
 import { hasRenderableContent } from "../utils/pageContent";
+import { PRODUCT_ARTIST_PARAM } from "../utils/pageHref";
 import type { PageListingLayout } from "../utils/pageLayout";
+import {
+  ProfileProductCovers,
+  ProfileProductsName,
+} from "./ProfileProductCovers";
 
 /**
  * A page whose type names a listing.
@@ -72,14 +79,19 @@ export const PageListing = ({
     />
   );
 
+  const artistParam = searchParams[PRODUCT_ARTIST_PARAM];
+  const artist = typeof artistParam === "string" ? artistParam : undefined;
+
   // Each listing type gets the content-page frame, title up in the header
   // row, adapted to how its records lay out.
   switch (layout) {
     case "products":
-      // The title alone on the header row, in column 3, sticking for the
-      // whole page; the covers below it run across all eight columns, edge to
-      // edge with the logo and nav. A grid item rather than a ColumnLeft, so the title's
-      // containing block is this whole wrapper and not just the first row.
+      // The title on the header row, in column 3, sticking for the whole
+      // page; when narrowed to one profile, that profile's name sits beside
+      // it in column 4, in the highlight colour, sticking likewise. The covers
+      // run across all eight columns below, edge to edge with the logo and
+      // nav. Grid items rather than a ColumnLeft, so their containing block is
+      // this whole wrapper and not just the first row.
       return (
         <div
           className={cn(
@@ -88,11 +100,25 @@ export const PageListing = ({
           )}
         >
           {title ? (
-            <div className="lg:sticky lg:top-0 lg:z-10 lg:col-start-3 lg:self-start">
+            <div className="lg:sticky lg:top-0 lg:z-10 lg:col-start-3 lg:row-start-1 lg:self-start">
               <StickyTitle>{title}</StickyTitle>
             </div>
           ) : null}
-          <div className="lg:col-span-8 lg:row-start-2">{body}</div>
+          {artist ? (
+            // On mobile, straight under the title rather than a gap away.
+            <div className="-mt-10 lg:sticky lg:top-0 lg:z-10 lg:col-start-4 lg:row-start-1 lg:mt-0 lg:self-start">
+              <ProfileProductsName slug={artist} />
+            </div>
+          ) : null}
+          <div className="lg:col-span-8 lg:row-start-2">
+            {/* Narrowed to one profile (a profile's "/ recordings" link):
+                its own products replace the page's listing block. */}
+            {/* The covers' records load in here (the listing block suspends
+                while the SDK fetches them), so this is where they wait. */}
+            <Suspense fallback={<ProductCoversSkeleton />}>
+              {artist ? <ProfileProductCovers slug={artist} /> : body}
+            </Suspense>
+          </div>
         </div>
       );
     case "profiles":

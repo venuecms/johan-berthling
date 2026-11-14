@@ -9,6 +9,7 @@ import {
   resolveNewsArticleHref,
   resolvePageHref,
   resolveProductHref,
+  resolveProfileProductsHref,
 } from "./pageHref";
 
 describe("resolvePageHref", () => {
@@ -129,5 +130,16 @@ describe("resolveProductHref", () => {
       href: "/shop/lp",
       external: false,
     });
+  });
+});
+
+describe("resolveProfileProductsHref", () => {
+  it("narrows the product listing page to one profile", () => {
+    expect(
+      resolveProfileProductsHref(
+        { slug: "recordings", type: "PRODUCTLIST", parentId: null },
+        "fire-orchestra",
+      ),
+    ).toBe("/p/recordings?artist=fire-orchestra");
   });
 });

@@ -101,3 +101,17 @@ export const resolveProductHref = ({
     ? { href: buyLink, external: true }
     : { href: `/shop/${slug}`, external: false };
 };
+
+/** The search param that narrows a product listing page to one profile. */
+export const PRODUCT_ARTIST_PARAM = "artist";
+
+/**
+ * A product listing page (e.g. Recordings) narrowed to one profile's products.
+ */
+export const resolveProfileProductsHref = (
+  listingPage: Parameters<typeof resolvePageHref>[0],
+  profileSlug: string,
+) =>
+  `${resolvePageHref(listingPage).href}?${new URLSearchParams({
+    [PRODUCT_ARTIST_PARAM]: profileSlug,
+  })}`;

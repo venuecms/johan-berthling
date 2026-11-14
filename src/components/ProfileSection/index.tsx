@@ -16,6 +16,7 @@ import { ErrorBoundary } from "@/components/utils/ErrorBoundary";
 // Plain `renderedStyles`, as ProfileCompact uses: a bio rendered inside a
 // profile listing must not be able to nest another profile listing.
 import { renderedStyles } from "../utils/styles";
+import { ProfileRecordingsLink } from "./ProfileRecordingsLink";
 
 /**
  * One profile as a full row of a profile listing page: the name in the page's
@@ -70,16 +71,25 @@ export const ProfileSection = ({ profile }: { profile: VenueProfile }) => {
 
         <VenueImage image={profile.image} />
 
-        <nav className="text-secondary">
-          <span aria-hidden className="opacity-30">
-            /
-          </span>{" "}
-          <Link
-            href={`/artists/${profile.slug}#past-events`}
-            className="hover:text-primary"
-          >
-            {t("past_concerts")}
-          </Link>
+        <nav className="flex flex-wrap gap-x-3 text-secondary">
+          {/* Only there when the profile has products; it checks for itself,
+              so a failed or slow check just leaves it out. */}
+          <ErrorBoundary fallback={null}>
+            <Suspense fallback={null}>
+              <ProfileRecordingsLink slug={profile.slug} />
+            </Suspense>
+          </ErrorBoundary>
+          <span>
+            <span aria-hidden className="opacity-30">
+              /
+            </span>{" "}
+            <Link
+              href={`/artists/${profile.slug}#past-events`}
+              className="hover:text-primary"
+            >
+              {t("past_concerts")}
+            </Link>
+          </span>
         </nav>
       </div>
     </section>

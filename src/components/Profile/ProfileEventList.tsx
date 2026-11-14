@@ -2,6 +2,7 @@ import { getProfileEvents, getSite } from "@venuecms/sdk-next";
 import { connection } from "next/server";
 
 import { EventsList, ListEvent, findNextEventId } from "@/components/EventList";
+import { EventListSkeleton } from "@/components/Skeletons";
 import { Skeleton } from "@/components/ui/Input/Skeleton";
 
 export const ProfileEventList = async ({
@@ -61,12 +62,8 @@ export const ProfileEventListSkeleton = ({
 }) => {
   return (
     <div className="flex flex-col gap-6">
-      <Skeleton className="w-1/4" />
-      <EventsList>
-        {Array.from({ length: numElements }).map((_, index) => (
-          <Skeleton key={index} className="h-16 w-[90%]" />
-        ))}
-      </EventsList>
+      <Skeleton className="h-3 w-1/4" />
+      <EventListSkeleton rows={numElements} />
     </div>
   );
 };

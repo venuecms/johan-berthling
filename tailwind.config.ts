@@ -42,6 +42,18 @@ export default {
         light: "300",
         regular: "500",
       },
+      keyframes: {
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+      },
+      animation: {
+        // Short: each product cover fading in (see ProductCoversGrid). The
+        // delay is part of the shorthand, read from --delay, so no separate
+        // animation-delay rule can lose to it in the cascade.
+        "fade-in-fast": "fade-in 50ms ease-out var(--delay, 0ms) both",
+      },
     },
   },
 };
