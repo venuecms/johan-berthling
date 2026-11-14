@@ -15,9 +15,10 @@ export const NavMenuDesktop = ({
   const { isActive } = useSearchQuery();
 
   return (
-    <nav className="relative hidden w-full items-center justify-between sm:flex">
+    <nav className="relative hidden items-baseline gap-8 sm:flex">
       {!isActive ? (
-        <ol className="mr-8 flex items-center gap-8 text-sm text-nav">
+        // Inline list, comma after every item but the last.
+        <ol className="flex flex-wrap items-baseline justify-end gap-x-[0.4em] text-sm text-nav [&>li:not(:last-child)]:after:content-[',']">
           {children}
         </ol>
       ) : null}

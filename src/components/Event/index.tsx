@@ -10,7 +10,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 import { contentComponents } from "@/components/ListingBlock";
-import { VenueImage } from "@/components/VenueImage";
+import { VenueImage, contentImageHandlers } from "@/components/VenueImage";
 
 import { LocationLink } from "../LocationLink";
 import { ProfileCompact } from "../ProfileCompact";
@@ -83,6 +83,7 @@ export const Event = ({
 
       <ColumnRight className="max-w-4xl">
         <VenueContent
+          components={contentImageHandlers}
           className="flex flex-col gap-6"
           content={content}
           contentStyles={contentComponents}

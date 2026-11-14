@@ -11,7 +11,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 import { contentComponents } from "@/components/ListingBlock";
-import { VenueImage } from "@/components/VenueImage";
+import {
+  PRODUCT_FRAME,
+  VenueImage,
+  contentImageHandlers,
+} from "@/components/VenueImage";
 
 import { ProfileCompact } from "../ProfileCompact";
 import {
@@ -70,12 +74,13 @@ export const Product = ({
               </div>
             ) : null}
           </div>
-          <VenueImage image={product.image} />
+          <VenueImage image={product.image} frame={PRODUCT_FRAME} />
         </div>
       </ColumnLeft>
 
       <ColumnRight className="max-w-4xl">
         <VenueContent
+          components={contentImageHandlers}
           className="flex flex-col gap-6"
           content={content}
           contentStyles={contentComponents}

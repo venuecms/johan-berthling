@@ -18,8 +18,10 @@ import {
   EventListingBlock,
   NewsListingBlock,
   PageListingBlock,
+  ProductCoversListingBlock,
   ProductListingBlock,
   ProfileListingBlock,
+  ProfileSectionsListingBlock,
 } from "./blocks";
 
 /**
@@ -39,4 +41,24 @@ export const contentComponents: ContentEntries & AllListingComponents = {
   pageListing: PageListingBlock,
   productListing: ProductListingBlock,
   profileListing: ProfileListingBlock,
+};
+
+/**
+ * `contentComponents` for a profile listing page, whose profile listing lays
+ * out as full sections instead of cards.
+ */
+export const profileListingPageComponents: ContentEntries &
+  AllListingComponents = {
+  ...contentComponents,
+  profileListing: ProfileSectionsListingBlock,
+};
+
+/**
+ * `contentComponents` for a product listing page, whose product listing lays
+ * out as a grid of covers instead of cards.
+ */
+export const productListingPageComponents: ContentEntries &
+  AllListingComponents = {
+  ...contentComponents,
+  productListing: ProductCoversListingBlock,
 };

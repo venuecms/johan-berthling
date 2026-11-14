@@ -21,7 +21,7 @@ export const renderedStyles: ContentStyles = {
   h3: "text-sm text-secondary",
   ol: "list-decimal pl-8",
   ul: "list-disc pl-4",
-  a: "underline text-primary text-sm font-medium",
+  a: "text-highlight text-sm font-medium",
 };
 
 export const getExcerpt = (content?: string | null) => {

@@ -24,7 +24,9 @@
   },
   "profiles": {
     "profiles": "Artister",
-    "no_profiles_found": "Inga artister hittades"
+    "no_profiles_found": "Inga artister hittades",
+    "past_concerts": "tidigare konserter",
+    "recordings": "inspelningar"
   },
   "tickets": {
     "free": "gratis"

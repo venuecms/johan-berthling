@@ -1,4 +1,8 @@
-import type { Page as VenuePage } from "@venuecms/sdk-next";
+import type {
+  Event as VenueEvent,
+  Page as VenuePage,
+  Product as VenueProduct,
+} from "@venuecms/sdk-next";
 
 /**
  * Root slugs that own a real route. The CMS still holds a page record for each
@@ -51,3 +55,63 @@ export const resolvePageHref = ({
 
 /** A news article has its own route, separate from the page it may also be. */
 export const resolveNewsArticleHref = (slug: string) => `/news/${slug}`;
+
+type EventLink = Pick<VenueEvent, "slug" | "tickets"> & {
+  location?: Pick<NonNullable<VenueEvent["location"]>, "externalLink"> | null;
+};
+
+/**
+ * Where an event links from a list, first available of:
+ *   1. a ticket's external link, to buy straight away;
+ *   2. the location's web URL;
+ *   3. the event's own page, so a row with neither still goes somewhere.
+ * The first two leave the site, so they open in a new tab.
+ */
+export const resolveEventHref = ({
+  slug,
+  tickets,
+  location,
+}: EventLink): { href: string; external: boolean } => {
+  const ticketLink = tickets?.find(
+    ({ externalLink }) => externalLink,
+  )?.externalLink;
+  const externalHref = ticketLink || location?.externalLink;
+
+  return externalHref
+    ? { href: externalHref, external: true }
+    : { href: `/events/${slug}`, external: false };
+};
+
+/**
+ * Where a product's cover links: the first variant's buy link, off-site in a
+ * new tab, or the product's own page when no variant has one.
+ */
+export const resolveProductHref = ({
+  slug,
+  variants,
+}: Pick<VenueProduct, "slug" | "variants">): {
+  href: string;
+  external: boolean;
+} => {
+  const buyLink = variants?.find(
+    ({ externalLink }) => externalLink,
+  )?.externalLink;
+
+  return buyLink
+    ? { href: buyLink, external: true }
+    : { href: `/shop/${slug}`, external: false };
+};
+
+/** The search param that narrows a product listing page to one profile. */
+export const PRODUCT_ARTIST_PARAM = "artist";
+
+/**
+ * A product listing page (e.g. Recordings) narrowed to one profile's products.
+ */
+export const resolveProfileProductsHref = (
+  listingPage: Parameters<typeof resolvePageHref>[0],
+  profileSlug: string,
+) =>
+  `${resolvePageHref(listingPage).href}?${new URLSearchParams({
+    [PRODUCT_ARTIST_PARAM]: profileSlug,
+  })}`;

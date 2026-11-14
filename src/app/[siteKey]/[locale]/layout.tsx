@@ -11,6 +11,7 @@ import { SearchProvider } from "@/components/Search/provider";
 import { SearchResultsLayout } from "@/components/SearchResults";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ThemedBody } from "@/components/ThemedBody";
+import { RoughLineFilter } from "@/components/VenueImage";
 import { setupSSR } from "@/components/utils";
 
 import "../../globals.css";
@@ -60,7 +61,10 @@ const RootLayout = ({
       <head>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-      <body className="font-base m-auto bg-background bg-[url('/noise-texture.svg')] bg-[length:256px_256px] bg-repeat px-6 font-regular text-primary antialiased bg-blend-multiply sm:max-w-[96rem] sm:px-12">
+
+      <body className="font-base m-auto bg-background px-6 font-regular leading-5 text-primary antialiased sm:max-w-[96rem] sm:px-2">
+        <RoughLineFilter />
+
         <Suspense fallback={<Loading />}>
           <LayoutContent params={params}>{children}</LayoutContent>
         </Suspense>

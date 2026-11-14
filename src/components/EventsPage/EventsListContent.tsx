@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
-import { EventsList, ListEvent } from "@/components/EventList";
+import { EventsList, ListEvent, findNextEventId } from "@/components/EventList";
 import { ColumnLeft, ColumnRight, TwoColumnLayout } from "@/components/layout";
 
 export async function EventsListContent({ locale }: { locale: string }) {
@@ -34,8 +34,14 @@ export async function EventsListContent({ locale }: { locale: string }) {
       <ColumnRight>
         {events?.records.length ? (
           <EventsList className="gap-y-12">
-            {events.records.map((event) => (
-              <ListEvent key={event.id} event={event} site={site} withImage />
+            {events.records.map((event, _, list) => (
+              <ListEvent
+                isNext={event.id === findNextEventId(list)}
+                key={event.id}
+                event={event}
+                site={site}
+                withImage
+              />
             ))}
           </EventsList>
         ) : (

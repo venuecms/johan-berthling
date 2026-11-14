@@ -31,18 +31,26 @@ export const formatDateRange = ({
   timeZone,
   withTime,
   template = "EEEE d MMMM yyyy",
+  monthFormat = "MMM",
 }: {
   start: string;
   end: string;
   timeZone: string;
   withTime?: boolean;
+  /** For single-day dates. */
   template?: string;
+  /**
+   * Month token for multi-day ranges, which build their own format rather
+   * than using `template`. Short by default: 3—5 Dec 2025 within a month,
+   * 3 Oct — 5 Nov 2025 across months.
+   */
+  monthFormat?: "MMMM" | "MMM";
 }) => {
   const startDate = new TZDate(start, timeZone);
   const endDate = new TZDate(end, timeZone);
 
   const isMultiDay =
-    startDate.getDay() !== endDate.getDay() ||
+    startDate.getDate() !== endDate.getDate() ||
     startDate.getMonth() !== endDate.getMonth() ||
     startDate.getFullYear() !== endDate.getFullYear();
 
@@ -55,9 +63,8 @@ export const formatDateRange = ({
     startDate.getFullYear() === endDate.getFullYear();
 
   if (isSameMonth) {
-    return `${format(new TZDate(start, timeZone), "d")}—${formatDate({ date: end, withTime: false, timeZone, template: "d MMMM yyyy" })}`;
+    return `${format(new TZDate(start, timeZone), "d")}—${formatDate({ date: end, withTime: false, timeZone, template: `d ${monthFormat} yyyy` })}`;
   }
 
-  return `${format(new TZDate(start, timeZone), "d")} ${format(new TZDate(startDate, timeZone), "MMMM")} — ${format(new TZDate(endDate, timeZone), "d")} 
-       ${format(new TZDate(endDate, timeZone), "MMMM")} ${format(new TZDate(endDate, timeZone), "yyyy")}`;
+  return `${format(startDate, `d ${monthFormat}`)} — ${format(endDate, `d ${monthFormat} yyyy`)}`;
 };

@@ -7,7 +7,7 @@ import { useLocale } from "next-intl";
 
 import { Link } from "@/lib/i18n";
 
-import { VenueImage } from "@/components/VenueImage";
+import { VenueImage, contentImageHandlers } from "@/components/VenueImage";
 
 // Deliberately plain `renderedStyles` rather than `contentComponents`: this bio
 // is itself what a profile listing renders, so a map carrying the listing
@@ -30,6 +30,7 @@ export const ProfileCompact = ({ profile }: { profile: VenueProfile }) => {
         <Link href={`/artists/${profile.slug}`}>{content.title}</Link>
       </div>
       <VenueContent
+        components={contentImageHandlers}
         className="flex flex-col gap-6 pr-4"
         content={content}
         contentStyles={renderedStyles}
