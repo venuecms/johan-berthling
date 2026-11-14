@@ -5,9 +5,9 @@ import {
   VenueImage as SdkVenueImage,
 } from "@venuecms/sdk-next";
 
-import { RoughFrame } from "./RoughFrame";
+import { type FrameStyle, RoughFrame } from "./RoughFrame";
 
-export { RoughLineFilter } from "./RoughFrame";
+export { PRODUCT_FRAME, RoughLineFilter } from "./RoughFrame";
 
 const ASPECTS = {
   square: "aspect-square",
@@ -19,11 +19,14 @@ export const VenueImage = ({
   image,
   aspect,
   props,
+  frame,
 }: {
   className?: string;
   image?: Partial<MediaItem>;
   aspect?: keyof typeof ASPECTS;
   props?: object;
+  /** The frame's look; the site default when left out. */
+  frame?: FrameStyle;
 }) => {
   const sdkImage = (
     <SdkVenueImage
@@ -44,7 +47,11 @@ export const VenueImage = ({
     <CreditWrapper credit={image.credit}>
       {/* A fixed aspect fills its box, so the frame does too. Otherwise the
           frame shrinks to the image, which may be narrower than the column. */}
-      <RoughFrame seed={image.url} className={aspect ? "w-full" : "w-fit"}>
+      <RoughFrame
+        seed={image.url}
+        frame={frame}
+        className={aspect ? "w-full" : "w-fit"}
+      >
         {sdkImage}
       </RoughFrame>
     </CreditWrapper>

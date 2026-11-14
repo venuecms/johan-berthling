@@ -24,7 +24,8 @@
   },
   "profiles": {
     "profiles": "Umelci",
-    "no_profiles_found": "Nenašli sa žiadni umelci"
+    "no_profiles_found": "Nenašli sa žiadni umelci",
+    "past_concerts": "minulé koncerty"
   },
   "tickets": {
     "free": "zadarmo"

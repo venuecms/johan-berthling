@@ -28,10 +28,11 @@
 import type { ListingProps } from "@venuecms/sdk-next";
 import { useTranslations } from "next-intl";
 
-import { EventsList, ListEvent } from "@/components/EventList";
-import { ListProduct } from "@/components/ListProduct";
+import { EventsList, ListEvent, findNextEventId } from "@/components/EventList";
+import { ListProduct, ProductCover } from "@/components/ListProduct";
 import { ListPage, PagesList } from "@/components/PageList";
 import { ProfileCompact } from "@/components/ProfileCompact";
+import { ProfileSection } from "@/components/ProfileSection";
 import { TwoSubColumnLayout } from "@/components/layout";
 import {
   resolveNewsArticleHref,
@@ -61,9 +62,17 @@ export const EventListingBlock = ({
       records={records}
       label={t("events")}
     >
-      <EventsList className="gap-y-12 py-4">
-        {records.map((event) => (
-          <ListEvent key={event.id} event={event} site={site} withImage />
+      {/* No top padding: the body's own gap already spaces the block from
+          whatever precedes it, and on a listing page the first event has to
+          start level with the title. */}
+      <EventsList className="gap-y-12 pb-4">
+        {records.map((event, _, list) => (
+          <ListEvent
+            isNext={event.id === findNextEventId(list)}
+            key={event.id}
+            event={event}
+            site={site}
+          />
         ))}
       </EventsList>
     </PaginatedListing>
@@ -182,6 +191,65 @@ export const ProfileListingBlock = ({
           <ProfileCompact key={profile.slug} profile={profile} />
         ))}
       </TwoSubColumnLayout>
+    </PaginatedListing>
+  );
+};
+
+/**
+ * The profile listing as a profile listing page draws it: one full-width
+ * section per profile rather than a grid of cards. Only that page type uses
+ * it (see PageListing); a profile listing placed in an ordinary page keeps the
+ * cards above.
+ */
+export const ProfileSectionsListingBlock = ({
+  records,
+  pagination,
+}: ListingProps<"profileListing">) => {
+  const t = useTranslations("listings");
+
+  return (
+    <PaginatedListing
+      pagination={pagination}
+      records={records}
+      label={t("profiles")}
+    >
+      <div className="flex flex-col gap-24">
+        {records.map((profile) => (
+          <ProfileSection key={profile.slug} profile={profile} />
+        ))}
+      </div>
+    </PaginatedListing>
+  );
+};
+
+/**
+ * The product listing as a product listing page (e.g. Recordings) draws it:
+ * just the covers, five across on desktop, each opening its buy link in a new
+ * tab. Only that page type uses it (see PageListing); a product listing in an
+ * ordinary page keeps the titled cards above.
+ */
+export const ProductCoversListingBlock = ({
+  records,
+  pagination,
+  site,
+}: ListingProps<"productListing">) => {
+  const t = useTranslations("listings");
+
+  if (!site) {
+    return null;
+  }
+
+  return (
+    <PaginatedListing
+      pagination={pagination}
+      records={records}
+      label={t("products")}
+    >
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-5">
+        {records.map((product) => (
+          <ProductCover key={product.slug} product={product} />
+        ))}
+      </div>
     </PaginatedListing>
   );
 };

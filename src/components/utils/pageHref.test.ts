@@ -1,6 +1,15 @@
+import type {
+  Event as VenueEvent,
+  Product as VenueProduct,
+} from "@venuecms/sdk-next";
 import { describe, expect, it } from "vitest";
 
-import { resolveNewsArticleHref, resolvePageHref } from "./pageHref";
+import {
+  resolveEventHref,
+  resolveNewsArticleHref,
+  resolvePageHref,
+  resolveProductHref,
+} from "./pageHref";
 
 describe("resolvePageHref", () => {
   it("routes a content page through /p", () => {
@@ -68,5 +77,57 @@ describe("resolvePageHref", () => {
 describe("resolveNewsArticleHref", () => {
   it("routes an article to the news route", () => {
     expect(resolveNewsArticleHref("spring-tour")).toBe("/news/spring-tour");
+  });
+});
+
+describe("resolveEventHref", () => {
+  const ticket = (externalLink?: string | null) =>
+    ({ externalLink }) as NonNullable<VenueEvent["tickets"]>[number];
+
+  it("prefers a ticket link", () => {
+    expect(
+      resolveEventHref({
+        slug: "gig",
+        tickets: [ticket(null), ticket("https://tickets.example/gig")],
+        location: { externalLink: "https://venue.example" },
+      }),
+    ).toEqual({ href: "https://tickets.example/gig", external: true });
+  });
+
+  it("falls back to the location's web URL", () => {
+    expect(
+      resolveEventHref({
+        slug: "gig",
+        tickets: [ticket(null)],
+        location: { externalLink: "https://venue.example" },
+      }),
+    ).toEqual({ href: "https://venue.example", external: true });
+  });
+
+  it("falls back to the event page when there is neither", () => {
+    expect(
+      resolveEventHref({ slug: "gig", tickets: [], location: null }),
+    ).toEqual({ href: "/events/gig", external: false });
+  });
+});
+
+describe("resolveProductHref", () => {
+  const variant = (externalLink?: string | null) =>
+    ({ externalLink }) as NonNullable<VenueProduct["variants"]>[number];
+
+  it("uses the first variant with a buy link", () => {
+    expect(
+      resolveProductHref({
+        slug: "lp",
+        variants: [variant(null), variant("https://label.example/lp")],
+      }),
+    ).toEqual({ href: "https://label.example/lp", external: true });
+  });
+
+  it("falls back to the product page", () => {
+    expect(resolveProductHref({ slug: "lp", variants: [] })).toEqual({
+      href: "/shop/lp",
+      external: false,
+    });
   });
 });

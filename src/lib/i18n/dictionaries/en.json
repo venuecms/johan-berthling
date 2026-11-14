@@ -24,7 +24,8 @@
   },
   "profiles": {
     "profiles": "Artists",
-    "no_profiles_found": "No artists found"
+    "no_profiles_found": "No artists found",
+    "past_concerts": "past concerts"
   },
   "tickets": {
     "free": "free"

@@ -1,16 +1,26 @@
 import { getProfileEvents, getSite } from "@venuecms/sdk-next";
 import { connection } from "next/server";
 
-import { EventsList, ListEvent } from "@/components/EventList";
+import { EventsList, ListEvent, findNextEventId } from "@/components/EventList";
 import { Skeleton } from "@/components/ui/Input/Skeleton";
 
 export const ProfileEventList = async ({
   header,
   slug,
   filter,
+  id,
+  rowClassName,
+  highlightNext = true,
 }: {
-  header: string;
+  /** Leave out for a bare list, as the profile listing sections draw it. */
+  header?: string;
   slug: string;
+  /** For linking straight to this list, e.g. #past-events. */
+  id?: string;
+  /** Passed to each row, e.g. to tighten the spacing between events. */
+  rowClassName?: string;
+  /** Draw the next upcoming event in the highlight colour. */
+  highlightNext?: boolean;
   filter?: { upcoming?: boolean; lt?: number; dir?: "asc" | "desc" };
 }) => {
   await connection();
@@ -25,11 +35,19 @@ export const ProfileEventList = async ({
   }
 
   return events?.records.length ? (
-    <div className="flex flex-col gap-6">
-      <h2 className="m-0 py-0 text-sm text-primary">{header}</h2>
+    <div id={id} className="flex flex-col gap-6">
+      {header ? (
+        <h2 className="m-0 py-0 text-sm text-primary">{header}</h2>
+      ) : null}
       <EventsList>
-        {events.records.map((event) => (
-          <ListEvent key={event.id} event={event} site={site} />
+        {events.records.map((event, _, list) => (
+          <ListEvent
+            isNext={highlightNext && event.id === findNextEventId(list)}
+            key={event.id}
+            event={event}
+            site={site}
+            className={rowClassName}
+          />
         ))}
       </EventsList>
     </div>

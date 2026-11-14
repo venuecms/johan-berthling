@@ -24,7 +24,8 @@
   },
   "profiles": {
     "profiles": "Kunstnere",
-    "no_profiles_found": "Ingen kunstnere fundet"
+    "no_profiles_found": "Ingen kunstnere fundet",
+    "past_concerts": "tidligere koncerter"
   },
   "tickets": {
     "free": "gratis"

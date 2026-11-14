@@ -8,7 +8,8 @@ export const SiteHeaderMobile = async ({
   nav: ReactNode;
 }) => {
   return (
-    <header className="top-0 flex w-full items-center justify-between py-6 text-nav sm:hidden">
+    // Sticky, with no background: content scrolls visibly behind it.
+    <header className="sticky top-0 z-10 flex items-center justify-between py-6 text-nav sm:hidden">
       {logo}
       {nav}
     </header>

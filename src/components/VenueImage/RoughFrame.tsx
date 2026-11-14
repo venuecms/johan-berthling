@@ -11,10 +11,28 @@ import { cn } from "@/lib/utils";
  * with the grid column.
  */
 
-// Overshoot past each corner, in px.
-const MIN_OVERSHOOT = 1;
-const MAX_OVERSHOOT = 4.5;
-const LINE_WEIGHT = "1.5px";
+/** Line thickness, and how far each line runs past a corner (px). */
+export type FrameStyle = {
+  weight: string;
+  minOvershoot: number;
+  maxOvershoot: number;
+};
+
+export const DEFAULT_FRAME: FrameStyle = {
+  weight: "1.5px",
+  minOvershoot: 1,
+  maxOvershoot: 4.5,
+};
+
+/**
+ * Product images (covers) take a lighter frame: a thinner line, and corners
+ * that overshoot a quarter as far.
+ */
+export const PRODUCT_FRAME: FrameStyle = {
+  weight: "1px",
+  minOvershoot: 0.25,
+  maxOvershoot: 1.125,
+};
 
 export const ROUGH_LINE_FILTER_ID = "rough-line";
 
@@ -57,7 +75,10 @@ export const RoughLineFilter = () => (
  * Deterministic per image: the same overshoots on the server and the client
  * (so no hydration mismatch) and on every visit, but different between images.
  */
-const overshoots = (key: string) => {
+const overshoots = (
+  key: string,
+  { minOvershoot, maxOvershoot }: FrameStyle,
+) => {
   // FNV-1a hash of the key seeds a mulberry32 generator.
   let seed = 2166136261;
   for (let i = 0; i < key.length; i++) {
@@ -70,7 +91,7 @@ const overshoots = (key: string) => {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     const random = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 
-    return `-${(MIN_OVERSHOOT + random * (MAX_OVERSHOOT - MIN_OVERSHOOT)).toFixed(1)}px`;
+    return `-${(minOvershoot + random * (maxOvershoot - minOvershoot)).toFixed(2)}px`;
   });
 };
 
@@ -84,14 +105,16 @@ export const RoughFrame = ({
   children,
   seed,
   className,
+  frame = DEFAULT_FRAME,
 }: {
   children: ReactNode;
   className?: string;
+  frame?: FrameStyle;
   /** Anything stable and unique to the image; its URL does. */
   seed: string;
 }) => {
   const [topL, topR, bottomL, bottomR, leftT, leftB, rightT, rightB] =
-    overshoots(seed);
+    overshoots(seed, frame);
 
   return (
     <div className={cn("relative max-w-full text-primary", className)}>
@@ -101,7 +124,7 @@ export const RoughFrame = ({
           style={{
             ...line,
             top: 0,
-            height: LINE_WEIGHT,
+            height: frame.weight,
             left: topL,
             right: topR,
           }}
@@ -110,7 +133,7 @@ export const RoughFrame = ({
           style={{
             ...line,
             bottom: 0,
-            height: LINE_WEIGHT,
+            height: frame.weight,
             left: bottomL,
             right: bottomR,
           }}
@@ -119,7 +142,7 @@ export const RoughFrame = ({
           style={{
             ...line,
             left: 0,
-            width: LINE_WEIGHT,
+            width: frame.weight,
             top: leftT,
             bottom: leftB,
           }}
@@ -128,7 +151,7 @@ export const RoughFrame = ({
           style={{
             ...line,
             right: 0,
-            width: LINE_WEIGHT,
+            width: frame.weight,
             top: rightT,
             bottom: rightB,
           }}

@@ -5,7 +5,7 @@ import { type SearchParams, getLocalizedContent } from "@venuecms/sdk-next";
 import { getPage, getPages } from "@venuecms/sdk-next";
 import { notFound } from "next/navigation";
 
-import { PageWithParent } from "@/lib/utils/tree";
+import { PageWithParent, collectDescendants } from "@/lib/utils/tree";
 
 import { PageListing } from "@/components/PageListing";
 import { setupSSR } from "@/components/utils";
@@ -56,15 +56,32 @@ const PagePage = async ({
       );
     }
 
-    // Only the page layout draws the subpage tree.
-    if (!pages) {
-      notFound();
-    }
+    // Sub-pages render in full beneath their parent, so each needs its own
+    // body, which only getPage returns. A missing page list just means no
+    // sub-pages, not a 404: the page itself still has everything it needs.
+    // Likewise a sub-page that fails to load is dropped rather than letting
+    // the catch below 404 its parent.
+    const descendants = pages
+      ? collectDescendants(pages.records as Array<PageWithParent>, page.id)
+      : [];
+    const subPages = (
+      await Promise.all(
+        descendants.map(({ slug }) =>
+          getPage({ slug }).then(
+            ({ data }) => data,
+            (error) => {
+              console.error(`Sub-page "${slug}" failed to load`, error);
+              return undefined;
+            },
+          ),
+        ),
+      )
+    ).filter((subPage) => subPage != null);
 
     return (
       <Page
         page={page}
-        pages={pages.records as Array<PageWithParent>}
+        subPages={subPages}
         searchParams={resolvedSearchParams}
       />
     );
