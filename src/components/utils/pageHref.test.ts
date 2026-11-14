@@ -88,27 +88,23 @@ describe("resolveEventHref", () => {
   it("prefers a ticket link", () => {
     expect(
       resolveEventHref({
-        slug: "gig",
         tickets: [ticket(null), ticket("https://tickets.example/gig")],
         location: { externalLink: "https://venue.example" },
       }),
-    ).toEqual({ href: "https://tickets.example/gig", external: true });
+    ).toBe("https://tickets.example/gig");
   });
 
   it("falls back to the location's web URL", () => {
     expect(
       resolveEventHref({
-        slug: "gig",
         tickets: [ticket(null)],
         location: { externalLink: "https://venue.example" },
       }),
-    ).toEqual({ href: "https://venue.example", external: true });
+    ).toBe("https://venue.example");
   });
 
-  it("falls back to the event page when there is neither", () => {
-    expect(
-      resolveEventHref({ slug: "gig", tickets: [], location: null }),
-    ).toEqual({ href: "/events/gig", external: false });
+  it("is no link at all when there is neither", () => {
+    expect(resolveEventHref({ tickets: [], location: null })).toBeUndefined();
   });
 });
 

@@ -56,31 +56,25 @@ export const resolvePageHref = ({
 /** A news article has its own route, separate from the page it may also be. */
 export const resolveNewsArticleHref = (slug: string) => `/news/${slug}`;
 
-type EventLink = Pick<VenueEvent, "slug" | "tickets"> & {
+type EventLink = Pick<VenueEvent, "tickets"> & {
   location?: Pick<NonNullable<VenueEvent["location"]>, "externalLink"> | null;
 };
 
 /**
  * Where an event links from a list, first available of:
  *   1. a ticket's external link, to buy straight away;
- *   2. the location's web URL;
- *   3. the event's own page, so a row with neither still goes somewhere.
- * The first two leave the site, so they open in a new tab.
+ *   2. the location's web URL.
+ * Both leave the site, so they open in a new tab. With neither, the event
+ * isn't a link at all: there is deliberately no fallback to /events/<slug>,
+ * which wouldn't exist for an event from a linked site anyway.
  */
 export const resolveEventHref = ({
-  slug,
   tickets,
   location,
-}: EventLink): { href: string; external: boolean } => {
-  const ticketLink = tickets?.find(
-    ({ externalLink }) => externalLink,
-  )?.externalLink;
-  const externalHref = ticketLink || location?.externalLink;
-
-  return externalHref
-    ? { href: externalHref, external: true }
-    : { href: `/events/${slug}`, external: false };
-};
+}: EventLink): string | undefined =>
+  tickets?.find(({ externalLink }) => externalLink)?.externalLink ||
+  location?.externalLink ||
+  undefined;
 
 /**
  * Where a product's cover links: the first variant's buy link, off-site in a

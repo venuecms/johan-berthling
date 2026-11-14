@@ -118,6 +118,12 @@
       "pattern": "^$|^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$",
       "description": "Overrides the theme's navigation color, in both light and dark mode. Leave empty to keep the theme's own color.",
       "title": "Navigation Color"
+    },
+    "linkedSiteKeys": {
+      "type": "string",
+      "default": "fire",
+      "title": "Linked Sites",
+      "description": "Site keys of other Venue sites whose events also appear on the home page, separated by commas. Each one also needs its API key set on the server (VENUE_LINKED_API_KEYS) before its events show."
     }
   }
 }
