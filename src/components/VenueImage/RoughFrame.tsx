@@ -19,14 +19,14 @@ export type FrameStyle = {
 };
 
 export const DEFAULT_FRAME: FrameStyle = {
-  weight: "1.5px",
+  weight: "1px",
   minOvershoot: 1,
   maxOvershoot: 4.5,
 };
 
 /**
- * Product images (covers) take a lighter frame: a thinner line, and corners
- * that overshoot a quarter as far.
+ * Product images (covers) take a lighter frame: the same 1px line, but
+ * corners that overshoot a quarter as far.
  */
 export const PRODUCT_FRAME: FrameStyle = {
   weight: "1px",
@@ -40,7 +40,7 @@ export const ROUGH_LINE_FILTER_ID = "rough-line";
  * The displacement filter that roughens the lines. Rendered once per page (in
  * the root layout) and referenced by id from every frame.
  *
- * userSpaceOnUse with a generous region: the lines are only 1.5px thick, so the
+ * userSpaceOnUse with a generous region: the lines are only 1px thick, so the
  * default region (10% of the element's box) would clip the displacement.
  */
 export const RoughLineFilter = () => (
